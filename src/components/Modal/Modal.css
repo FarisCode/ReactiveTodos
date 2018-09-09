@@ -1,0 +1,21 @@
+.modal {
+    background-color: white;
+    width: 90%;
+    height: 80vh;
+    box-shadow: 1px 1px 25px rgb(133, 133, 133);
+    /* padding: 16px; */
+    margin: 10vh auto;
+    box-sizing: border-box;
+    transition: 0.3s;
+    border-radius: 10px;
+    min-width: 300px;
+    overflow: auto;
+    position: relative;
+}
+
+@media (min-width: 700px) {
+    .modal {
+        width: 600px;
+        /* left: calc(50% - 250px); */
+    }
+}

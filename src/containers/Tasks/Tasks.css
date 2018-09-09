@@ -1,0 +1,9 @@
+.tasks{
+    width: 95%;
+    height: calc(100% - 125px);
+    padding: 10px;
+    box-sizing: border-box;
+    margin: auto;
+    margin-top: 15px;
+    overflow: auto;
+}

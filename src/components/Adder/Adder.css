@@ -1,0 +1,25 @@
+.adder{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 90%;
+    height: 35px;
+    line-height: 35px;
+    margin: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 5px 0;
+    z-index: 200;
+    /* margin-bottom: 20px; */
+}
+.adder .Addinput{
+    outline: none;
+    border: none;
+    font-family: 'Raleway', sans-serif;
+    width: 90%;
+    line-height: 30px;
+}
+.adder i{
+    cursor: pointer;
+}

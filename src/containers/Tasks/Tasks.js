@@ -3,29 +3,30 @@ import './Tasks.css';
 import Task from '../../components/Task/Task';
 import Aux from '../../hoc/Aux';
 import Adder from '../../components/Adder/Adder';
-// import Backdrop from '../../components/Notifier/Backdrop/Backdrop';
-
+import Backdrop from '../../components/Notifier/Backdrop/Backdrop';
+import Notifier from '../../components/Notifier/Notifier';
 export default class componentName extends Component {
     state = {
         //for listing from localhost
         todo: JSON.parse(localStorage.getItem('reactiveTodosTasks')) || [],
-        
         //backDropForEdit
         backdrop: false,
-
+        //notifier for delete
+        notifier: false,
+        notifierDelID: null,
+        notifyReturn: null,
         //for adder
-        adderValue: '', 
+        adderValue: '',
         invalidInput: false,
-
-        //for adder
-        editAdderValue: '', 
+        //for edit adder
+        currEditId: null,
+        editAdderValue: '',
         editInvalidInput: false
     }
-
-    adderOnChangeHandler=(event)=>{
+    adderOnChangeHandler = (event) => {
         this.setState({ adderValue: event.target.value, invalidInput: false })
     }
-
+    //for adding new task!
     taskAddHandler = (id) => {
         let tasks = [...this.state.todo];
         const val = this.state.adderValue.trim();
@@ -73,13 +74,19 @@ export default class componentName extends Component {
         tasks[id].edit = true;
         this.setState({
             todo: tasks,
-            backdrop: true
-        })
+            backdrop: true,
+            currEditId: id
+        });
         localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
     }
-    taskDeleteHandler = (event, id) => {
-        // console.log(id)
-        event.stopPropagation();
+    notifierYesClickHandler = () => {
+        this.taskDeleteHandler(this.state.notifierDelID);
+        this.setState({ notifier: false, notifierDelID: null });
+    }
+    notifierNoClickHandler = () => {
+        this.setState({ notifier: false, notifierDelID: null });
+    }
+    taskDeleteHandler = (id) => {
         let tasks = this.state.todo.filter((element, index) => {
             return index !== id;
         });
@@ -88,14 +95,36 @@ export default class componentName extends Component {
         })
         localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
     }
-
+    backdropClickHandler = () => {
+        let id = this.state.currEditId;
+        let tasks = [...this.state.todo];
+        tasks[id] = { ...this.state.todo[id] }
+        tasks[id].edit = false;
+        this.setState({
+            todo: tasks,
+            backdrop: false,
+            currEditId: null
+        });
+        localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
+    }
     render() {
         return (
             <Aux>
-                {/* {this.state.backdrop? <Backdrop abs/>:null} */}
+                <Notifier
+                    data='Are you sure you want to delete this task?'
+                    show={this.state.notifier}
+                    yesClick={this.notifierYesClickHandler}
+                    noClick={this.notifierNoClickHandler}
+                />
+                {this.state.backdrop ? <Backdrop backdropClick={this.backdropClickHandler} abs /> : null}
                 <div className='header'>
                     <h2 style={{ textAlign: "center", fontWeight: 'normal', height: '68px', lineHeight: '68px', margin: '0' }}>REACTIVE TODO'S</h2>
-                    <Adder value={this.state.adderValue} changeHandler={this.adderOnChangeHandler} valid={!this.state.invalidInput}  addClick={this.taskAddHandler} />
+                    <Adder
+                        value={this.state.adderValue}
+                        changeHandler={this.adderOnChangeHandler}
+                        valid={!this.state.invalidInput}
+                        addClick={this.taskAddHandler}
+                    />
                 </div>
                 <div className='tasks'>
                     {this.state.todo.length > 0 ? this.state.todo.map((todo, index) => {
@@ -107,7 +136,7 @@ export default class componentName extends Component {
                             editTask={this.taskAddHandler}
                             id={index}
                             edit={todo.edit}
-                            taskDel={(event) => { this.taskDeleteHandler(event, index) }}
+                            taskDel={() => { this.setState({ notifier: true, notifierDelID: index }) }}
                             taskClick={(event) => { this.taskClickedHandler(event, index) }} />
                     }) : <div
                         style={{

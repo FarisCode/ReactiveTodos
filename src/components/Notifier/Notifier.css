@@ -1,7 +1,40 @@
-.notifier{
+.notifier {
     width: 300px;
-    height: 250px;
+    height: 200px;
     background-color: #fff;
     border-radius: 5px;
     z-index: 110;
+    position: fixed;
+    margin-top: calc(50vh - 200px);
+    left: calc(50vw - 150px);
+    text-align: center;
+    padding:45px 20px;
+    box-sizing: border-box;
 }
+.notifier p{
+    font-size: 1.2em;
+    height: 70px;
+    margin: 0;
+}
+.notifier button{
+    height: 30px;
+    margin: 0 10px;
+    width: 70px;
+    border: none;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+.notifier button:active{
+    opacity: 0.5;
+    transition: 0.1s;
+}
+.notifier button.yes{
+    color: #fff;
+    background-color: #fd3142;
+} 
+.notifier button.no{
+    color: #555;
+    background-color: #efefef;
+} 

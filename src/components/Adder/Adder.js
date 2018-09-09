@@ -20,13 +20,13 @@ export default class Adder extends Component {
                     onChange={this.props.changeHandler}
                     onKeyPress={(e) => {
                         if (e.key === 'Enter') {
-                            this.props.addClick();
+                            this.props.addClick(this.props.value);
                         }
                     }} />
                 <i
                     onClick={() => {
                         this.nameInput.focus();
-                        this.props.addClick()
+                        this.props.addClick(this.props.value)
                     }}
                     className="fas fa-plus-circle"></i>
             </div>

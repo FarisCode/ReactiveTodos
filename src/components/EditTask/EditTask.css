@@ -1,0 +1,19 @@
+.editTask {
+    width: 85%;
+    height: 125px;
+    background-color: #fff;
+    border-radius: 5px;
+    z-index: 110;
+    position: fixed;
+    margin-top: calc(50vh - 200px);
+    left: calc(50vw - 42.5%);
+    text-align: center;
+    box-sizing: border-box;
+}
+
+@media (min-width: 700px) {
+    .editTask {
+        width: 500px;
+        left: calc(50vw - 250px);
+    }
+}

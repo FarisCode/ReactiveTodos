@@ -1,6 +1,5 @@
 import React from 'react';
 import './Task.css'
-
 export default props => {
   let desStyle = {
     fontSize: '0.9em',

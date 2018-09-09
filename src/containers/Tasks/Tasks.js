@@ -3,14 +3,16 @@ import './Tasks.css';
 import Task from '../../components/Task/Task';
 import Aux from '../../hoc/Aux';
 import Adder from '../../components/Adder/Adder';
-import Backdrop from '../../components/Notifier/Backdrop/Backdrop';
 import Notifier from '../../components/Notifier/Notifier';
+import EditTask from '../../components/EditTask/EditTask';
+
 export default class componentName extends Component {
     state = {
         //for listing from localhost
-        todo: JSON.parse(localStorage.getItem('reactiveTodosTasks')) || [],
-        //backDropForEdit
-        backdrop: false,
+        todo: JSON.parse(localStorage.getItem('reactiveTodosTasks')) || [{
+            task: 'Click over me!',
+            done: false
+        }],
         //notifier for delete
         notifier: false,
         notifierDelID: null,
@@ -27,32 +29,32 @@ export default class componentName extends Component {
         this.setState({ adderValue: event.target.value, invalidInput: false })
     }
     //for adding new task!
-    taskAddHandler = (id) => {
+    taskAddHandler = (value) => {
         let tasks = [...this.state.todo];
-        const val = this.state.adderValue.trim();
+        const val = value.trim();
         if (val !== '') {
-            if (id !== undefined) {
-                tasks[id] = {
+            if (this.state.currEditId !== null) {
+                tasks[this.state.currEditId] = {
                     task: val,
-                    done: false,
-                    edit: false
+                    done: false
                 };
                 this.setState({
                     todo: tasks,
-                    backdrop: false
+                    currEditId:null
                 });
             } else {
                 tasks.push({
                     task: val,
-                    done: false,
-                    edit: false
+                    done: false
                 });
                 this.setState({
                     todo: tasks
                 });
             }
             this.setState({ adderValue: '' });
-        } else {
+        } else if(this.state.currEditId!== null) {
+            this.setState({ editAdderValue: '', editInvalidInput: true });
+        }else{
             this.setState({ adderValue: '', invalidInput: true });
         }
         localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
@@ -69,15 +71,11 @@ export default class componentName extends Component {
 
     }
     taskEditClickHandler = (id) => {
-        let tasks = [...this.state.todo];
-        tasks[id] = { ...this.state.todo[id] }
-        tasks[id].edit = true;
         this.setState({
-            todo: tasks,
             backdrop: true,
-            currEditId: id
+            currEditId: id,
+            editAdderValue: this.state.todo[id].task
         });
-        localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
     }
     notifierYesClickHandler = () => {
         this.taskDeleteHandler(this.state.notifierDelID);
@@ -96,16 +94,9 @@ export default class componentName extends Component {
         localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
     }
     backdropClickHandler = () => {
-        let id = this.state.currEditId;
-        let tasks = [...this.state.todo];
-        tasks[id] = { ...this.state.todo[id] }
-        tasks[id].edit = false;
         this.setState({
-            todo: tasks,
-            backdrop: false,
             currEditId: null
         });
-        localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
     }
     render() {
         return (
@@ -116,7 +107,17 @@ export default class componentName extends Component {
                     yesClick={this.notifierYesClickHandler}
                     noClick={this.notifierNoClickHandler}
                 />
-                {this.state.backdrop ? <Backdrop backdropClick={this.backdropClickHandler} abs /> : null}
+                {
+                    this.state.currEditId !== null
+                        ? <EditTask
+                            backdropClick={this.backdropClickHandler}
+                            adderValue={this.state.editAdderValue}
+                            editChange={(event) => {this.setState({editAdderValue:event.target.value})}}
+                            valid={!this.state.editInvalidInput}
+                            addClick={this.taskAddHandler}
+                        />
+                        : null
+                }
                 <div className='header'>
                     <h2 style={{ textAlign: "center", fontWeight: 'normal', height: '68px', lineHeight: '68px', margin: '0' }}>REACTIVE TODO'S</h2>
                     <Adder
@@ -133,9 +134,7 @@ export default class componentName extends Component {
                             des={todo.task}
                             done={todo.done}
                             editClick={() => { this.taskEditClickHandler(index) }}
-                            editTask={this.taskAddHandler}
                             id={index}
-                            edit={todo.edit}
                             taskDel={() => { this.setState({ notifier: true, notifierDelID: index }) }}
                             taskClick={(event) => { this.taskClickedHandler(event, index) }} />
                     }) : <div

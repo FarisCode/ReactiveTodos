@@ -95,7 +95,8 @@ export default class componentName extends Component {
     }
     backdropClickHandler = () => {
         this.setState({
-            currEditId: null
+            currEditId: null,
+            editInvalidInput:false
         });
     }
     render() {

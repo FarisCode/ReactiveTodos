@@ -112,7 +112,7 @@ export default class componentName extends Component {
                         ? <EditTask
                             backdropClick={this.backdropClickHandler}
                             adderValue={this.state.editAdderValue}
-                            editChange={(event) => {this.setState({editAdderValue:event.target.value})}}
+                            editChange={(event) => {this.setState({editAdderValue:event.target.value, editInvalidInput:false})}}
                             valid={!this.state.editInvalidInput}
                             addClick={this.taskAddHandler}
                         />

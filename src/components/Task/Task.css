@@ -16,3 +16,6 @@
 .task .text ,.task i{
     cursor: pointer;
 }
+.task .text{
+    overflow-wrap: break-word;
+}

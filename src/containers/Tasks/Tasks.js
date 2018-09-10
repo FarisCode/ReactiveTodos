@@ -5,99 +5,83 @@ import Aux from '../../hoc/Aux';
 import Adder from '../../components/Adder/Adder';
 import Notifier from '../../components/Notifier/Notifier';
 import EditTask from '../../components/EditTask/EditTask';
+import { connect } from 'react-redux';
+import * as actionCreators from '../../store/actions/actionCreators';
 
-export default class componentName extends Component {
+class Tasks extends Component {
     state = {
-        //for listing from localhost
-        todo: JSON.parse(localStorage.getItem('reactiveTodosTasks')) || [{
-            task: 'Click over me!',
-            done: false
-        }],
-        //notifier for delete
         notifier: false,
-        notifierDelID: null,
-        notifyReturn: null,
-        //for adder
         adderValue: '',
-        invalidInput: false,
-        //for edit adder
-        currEditId: null,
-        editAdderValue: '',
-        editInvalidInput: false
+        editAdderValue: ''
     }
     adderOnChangeHandler = (event) => {
-        this.setState({ adderValue: event.target.value, invalidInput: false })
+        this.setState({ adderValue: event.target.value });
+        this.props.setinValid(false);
     }
     //for adding new task!
     taskAddHandler = (value) => {
-        let tasks = [...this.state.todo];
+        let tasks = [...this.props.tasks];
         const val = value.trim();
         if (val !== '') {
-            if (this.state.currEditId !== null) {
-                tasks[this.state.currEditId] = {
+            if (this.props.editId !== null) {
+                tasks[this.props.editId] = {
                     task: val,
                     done: false
                 };
-                this.setState({
-                    todo: tasks,
-                    currEditId:null
-                });
+                this.props.tasksStateOverwrite([...tasks]);
+                this.props.setEditId(null);
             } else {
                 tasks.push({
                     task: val,
                     done: false
                 });
-                this.setState({
-                    todo: tasks
-                });
+                this.props.tasksStateOverwrite([...tasks]);
             }
             this.setState({ adderValue: '' });
-        } else if(this.state.currEditId!== null) {
-            this.setState({ editAdderValue: '', editInvalidInput: true });
-        }else{
-            this.setState({ adderValue: '', invalidInput: true });
+        } else if (this.props.editId !== null) {
+            this.setState({ editAdderValue: '' });
+            this.props.setEditinValid(true);
+        } else {
+            this.setState({ adderValue: '' });
+            this.props.setinValid(true);
         }
         localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
     }
     taskClickedHandler = (event, id) => {
         event.stopPropagation();
-        let tasks = [...this.state.todo];
-        tasks[id] = { ...this.state.todo[id] }
-        tasks[id].done = !this.state.todo[id].done;
-        this.setState({
-            todo: tasks
-        })
+        let tasks = [...this.props.tasks];
+        tasks[id] = { ...this.props.tasks[id] }
+        tasks[id].done = !this.props.tasks[id].done;
+        this.props.tasksStateOverwrite([...tasks]);
         localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
 
     }
     taskEditClickHandler = (id) => {
         this.setState({
             backdrop: true,
-            currEditId: id,
-            editAdderValue: this.state.todo[id].task
+            editAdderValue: this.props.tasks[id].task
         });
+        this.props.setEditId(id);
     }
     notifierYesClickHandler = () => {
-        this.taskDeleteHandler(this.state.notifierDelID);
-        this.setState({ notifier: false, notifierDelID: null });
+        this.taskDeleteHandler(this.props.delId);
+        this.setState({ notifier: false });
+        this.props.setDelId(null);
     }
     notifierNoClickHandler = () => {
-        this.setState({ notifier: false, notifierDelID: null });
+        this.setState({ notifier: false });
+        this.props.setDelId(null);
     }
     taskDeleteHandler = (id) => {
-        let tasks = this.state.todo.filter((element, index) => {
+        let tasks = this.props.tasks.filter((element, index) => {
             return index !== id;
         });
-        this.setState({
-            todo: tasks
-        })
+        this.props.tasksStateOverwrite([...tasks]);
         localStorage.setItem('reactiveTodosTasks', JSON.stringify(tasks));
     }
     backdropClickHandler = () => {
-        this.setState({
-            currEditId: null,
-            editInvalidInput:false
-        });
+        this.props.setEditId(null);
+        this.props.setEditinValid(false);
     }
     render() {
         return (
@@ -109,12 +93,12 @@ export default class componentName extends Component {
                     noClick={this.notifierNoClickHandler}
                 />
                 {
-                    this.state.currEditId !== null
+                    this.props.editId !== null
                         ? <EditTask
                             backdropClick={this.backdropClickHandler}
                             adderValue={this.state.editAdderValue}
-                            editChange={(event) => {this.setState({editAdderValue:event.target.value, editInvalidInput:false})}}
-                            valid={!this.state.editInvalidInput}
+                            editChange={(event) => { this.setState({ editAdderValue: event.target.value }); this.props.setEditinValid(false) }}
+                            valid={!this.props.editInvalid}
                             addClick={this.taskAddHandler}
                         />
                         : null
@@ -124,19 +108,19 @@ export default class componentName extends Component {
                     <Adder
                         value={this.state.adderValue}
                         changeHandler={this.adderOnChangeHandler}
-                        valid={!this.state.invalidInput}
+                        valid={!this.props.invalid}
                         addClick={this.taskAddHandler}
                     />
                 </div>
                 <div className='tasks'>
-                    {this.state.todo.length > 0 ? this.state.todo.map((todo, index) => {
+                    {this.props.tasks.length > 0 ? this.props.tasks.map((todo, index) => {
                         return <Task
                             key={index}
                             des={todo.task}
                             done={todo.done}
                             editClick={() => { this.taskEditClickHandler(index) }}
                             id={index}
-                            taskDel={() => { this.setState({ notifier: true, notifierDelID: index }) }}
+                            taskDel={() => { this.setState({ notifier: true }); this.props.setDelId(index); }}
                             taskClick={(event) => { this.taskClickedHandler(event, index) }} />
                     }) : <div
                         style={{
@@ -150,3 +134,25 @@ export default class componentName extends Component {
         )
     }
 }
+
+const mapStateToProps = (state) => ({
+    tasks: state.todo,
+    delId: state.notifierDelID,
+    invalid: state.invalidInput,
+    editId: state.currEditId,
+    editInvalid: state.editInvalidInput
+})
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setinValid: (val) => dispatch(actionCreators.invalid(val)),
+        setEditinValid: (val) => dispatch(actionCreators.editInvalid(val)),
+        setDelId: (id) => dispatch(actionCreators.delID(id)),
+        setEditId: (id) => dispatch(actionCreators.editID(id)),
+        tasksStateOverwrite: (tasks) => dispatch(actionCreators.taskOverWrite(tasks))
+    };
+}
+
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Tasks);
